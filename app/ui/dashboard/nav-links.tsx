@@ -11,6 +11,14 @@ import clsx from "clsx";
 
 export default function NavLinks() {
   const pathname = usePathname();
+  const links = [
+  { name: 'Home', href: '/', icon: HomeIcon },
+  {
+    name: 'Dashboard',
+    href: '/dashboard',
+    icon: DocumentDuplicateIcon,
+  },
+];
   return (
     <>
       {links.map((link) => {
