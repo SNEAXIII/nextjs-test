@@ -5,6 +5,18 @@ import { twMerge } from "tailwind-merge";
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+export const truncateString = (str: string, maxLength: number): string => {
+  return str.length > maxLength ? `${str.slice(0, maxLength)}...` : str;
+};
+
+export const formatDateInFrenchShort = (date: string): string =>
+  new Date(date).toLocaleString("fr-FR", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+
 export const formatCurrency = (amount: number) => {
   return (amount / 100).toLocaleString("en-US", {
     style: "currency",

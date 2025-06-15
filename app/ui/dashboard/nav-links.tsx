@@ -1,10 +1,7 @@
 "use client";
+import { MdOutlineAdminPanelSettings } from "react-icons/md";
+import { IoHomeOutline } from "react-icons/io5";
 
-import {
-  UserGroupIcon,
-  HomeIcon,
-  DocumentDuplicateIcon,
-} from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
@@ -12,11 +9,11 @@ import clsx from "clsx";
 export default function NavLinks() {
   const pathname = usePathname();
   const links = [
-  { name: 'Home', href: '/', icon: HomeIcon },
+  { name: 'Accueil', href: '/', icon: IoHomeOutline  },
   {
-    name: 'Dashboard',
+    name: 'Administrateur',
     href: '/dashboard',
-    icon: DocumentDuplicateIcon,
+    icon: MdOutlineAdminPanelSettings,
   },
 ];
   return (
