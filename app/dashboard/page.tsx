@@ -1,15 +1,66 @@
 'use client';
-import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import React, { useEffect, useState } from 'react';
-import { fetchUsers, User } from '@/app/services/users';
-import { UserRow } from '@/components/dashboard/UserRow';
-import Loading from "@/app/dashboard/loading";
-import RenderUserDashboard from "@/app/ui/dashboard/RenderUserDashboard";
+import { fetchUsers, fetchUsers2, User } from '@/app/services/users';
+import Loading from '@/app/dashboard/loading';
+import RenderUserDashboard from '@/app/ui/dashboard/render-user-dashboard';
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        const data = await fetchUsers();
+        setUsers(data.users);
+      } catch (error) {
+        console.error('Erreur lors du chargement des utilisateurs:', error);
+      } finally {
+        setLoading(false);
+      }
+      const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+      await sleep(1000);
+      const data = await fetchUsers2();
+      setUsers(data.users);
+    };
+    loadUsers();
+  }, []);
+
+  const handleDisable = async (userId: string) => {
+    try {
+      console.log("Désactivation de l'utilisateur:", userId);
+      // TODO: Implémenter l'action de désactivation
+    } catch (error) {
+      console.error('Erreur lors de la désactivation:', error);
+    }
+  };
+
+  const handleEnable = async (userId: string) => {
+    try {
+      console.log("Activation de l'utilisateur:", userId);
+      // TODO: Implémenter l'action d'activation
+    } catch (error) {
+      console.error("Erreur lors de l'activation:", error);
+    }
+  };
+
+  const handleDelete = async (userId: string) => {
+    try {
+      console.log("Suppression de l'utilisateur:", userId);
+      // TODO: Implémenter l'action de suppression
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error);
+    }
+  };
+
   if (loading) return <Loading />;
-  return <RenderUserDashboard />
+
+  return (
+    <RenderUserDashboard
+      users={users}
+      onDisable={handleDisable}
+      onEnable={handleEnable}
+      onDelete={handleDelete}
+    />
+  );
 }

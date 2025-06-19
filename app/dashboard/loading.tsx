@@ -1,19 +1,35 @@
 import React from 'react';
+import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
+import TableHeaderUsers from '@/app/ui/dashboard/table-header';
+import { MoreHorizontal } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export default function Loading() {
   return (
-    <tr className='animate-pulse'>
-      {[...Array(6)].map((_, index) => (
-        <td
-          key={index}
-          className='p-4'
-        >
-          <div className='h-4 bg-gray-300 rounded'></div>
-        </td>
-      ))}
-      <td className='p-4'>
-        <div className='h-8 w-8 bg-gray-300 rounded'></div>
-      </td>
-    </tr>
+    <div className='container mx-auto py-6'>
+      <Table>
+        <TableHeaderUsers />
+        <TableBody>
+          {Array.from({ length: 10 }, (_, index) => (
+            <TableRow key={index}>
+              {Array.from({ length: 6 }, (_, key) => (
+                <TableCell key={key}>
+                  <div className='h-4 bg-gray-200 rounded-full dark:bg-gray-700 w-full animate-pulse'></div>
+                </TableCell>
+              ))}
+              <TableCell>
+                <Button
+                  variant='ghost'
+                  className='h-8 w-8 p-0'
+                  disabled={true}
+                >
+                  <MoreHorizontal className='h-4 w-4' />
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   );
 }

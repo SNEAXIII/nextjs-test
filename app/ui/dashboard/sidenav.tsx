@@ -34,6 +34,7 @@ export default function SideNav() {
             type='button'
             className='flex h-[48px] w-full items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium text-gray-700 transition hover:bg-sky-100 hover:text-blue-600 md:justify-start md:p-2 md:px-3'
             onClick={() => {
+              // TODO FAIRE LA DECO
               console.log('Déconnexion...');
             }}
             aria-label='Se déconnecter'
