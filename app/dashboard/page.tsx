@@ -12,6 +12,11 @@ export default function UsersPage() {
   const [totalPage, setTotalPage] = useState(1);
   const [usersPerPage, setUsersPerPage] = useState(10);
 
+  function handleRadioSetUsersPerPage(value: string) {
+    setUsersPerPage(Number(value));
+    setCurrentPage(1);
+  }
+
   useEffect(() => {
     const loadUsers = async () => {
       if (!users) {
@@ -74,6 +79,8 @@ export default function UsersPage() {
       <PaginationControls
         currentPage={currentPage}
         totalPage={totalPage}
+        usersPerPage={usersPerPage}
+        onUserPerPageChange={handleRadioSetUsersPerPage}
         onFirstPage={handleFirstPage}
         onPreviousPage={handlePreviousPage}
         onNextPage={handleNextPage}
