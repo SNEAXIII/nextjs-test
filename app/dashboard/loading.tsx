@@ -4,13 +4,17 @@ import TableHeaderUsers from '@/app/ui/dashboard/table-header';
 import { MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-export default function Loading() {
+interface LoadingProps {
+  usersPerPage: number;
+}
+
+export default function Loading({ usersPerPage }: LoadingProps) {
   return (
     <div className='container mx-auto py-6'>
       <Table>
         <TableHeaderUsers />
         <TableBody>
-          {Array.from({ length: 10 }, (_, index) => (
+          {Array.from({ length: usersPerPage }, (_, index) => (
             <TableRow key={index}>
               {Array.from({ length: 6 }, (_, key) => (
                 <TableCell key={key}>

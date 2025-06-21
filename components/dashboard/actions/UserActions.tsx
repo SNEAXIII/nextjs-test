@@ -38,14 +38,14 @@ export function UserActions({
       <TableCell>
         <TooltipProvider>
           <Tooltip>
-            <TooltipTrigger asChild>
+            <TooltipTrigger asChild><div>
               <Button
                 variant='ghost'
                 className='h-8 w-8 p-0'
                 disabled={isDeleted}
               >
                 <MoreHorizontal className='h-4 w-4' />
-              </Button>
+              </Button></div>
             </TooltipTrigger>
             <TooltipContent>
               <p>Cet utilisateur est supprimé</p>

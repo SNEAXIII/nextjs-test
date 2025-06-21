@@ -15,36 +15,16 @@ export interface FetchUsersResponse {
   total_pages: number;
   current_page: number;
 }
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 export const getUsers = async (
   page: number = 1,
   size: number = 10
 ): Promise<FetchUsersResponse> => {
-  await sleep(1000); // Sleep for 1 second
-
   const url = `http://127.0.0.1:8000/admin/users?page=${page}&size=${size}`;
   const headers = {
-    accept: "application/json",
+    accept: 'application/json',
     Authorization:
-      "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJVc2VyIiwicm9sZSI6ImFkbWluIiwiZXhwIjoxNzQ5OTA2Mjg4fQ.sIlESn-ge-7Z5D0lNu9BINDT6GCZVV0Au7x4xcsC0RU",
-  };
-  const response = await fetch(url, { headers });
-  if (!response.ok) {
-    throw new Error(`HTTP error! Status: ${response.status}`);
-  }
-  return response.json();
-};
-export const fetchUsers2 = async (
-  page: number = 2,
-  size: number = 10
-): Promise<FetchUsersResponse> => {
-  await sleep(1000); // Sleep for 1 second
-
-  const url = `http://127.0.0.1:8000/admin/users?page=${page}&size=${size}`;
-  const headers = {
-    accept: "application/json",
-    Authorization:
-      "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJVc2VyIiwicm9sZSI6ImFkbWluIiwiZXhwIjoxNzQ5OTA2Mjg4fQ.sIlESn-ge-7Z5D0lNu9BINDT6GCZVV0Au7x4xcsC0RU",
+      'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJVc2VyIiwicm9sZSI6ImFkbWluIiwiZXhwIjoxNzQ5OTA2Mjg4fQ.sIlESn-ge-7Z5D0lNu9BINDT6GCZVV0Au7x4xcsC0RU',
   };
   const response = await fetch(url, { headers });
   if (!response.ok) {
