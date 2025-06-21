@@ -10,8 +10,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal, Power, Trash } from 'lucide-react';
 import { useState } from 'react';
-import { ConfirmationDialog } from '../dialogs/ConfirmationDialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { ConfirmationDialog } from '@/components/dashboard/dialogs/ConfirmationDialog';
 
 interface UserActionsProps {
   userId: string;
@@ -33,6 +33,29 @@ export function UserActions({
   const [isDisableDialogOpen, setIsDisableDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
+  if (isDeleted) {
+    return (
+      <TableCell>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <Button
+                variant='ghost'
+                className='h-8 w-8 p-0'
+                disabled={isDeleted}
+              >
+                <MoreHorizontal className='h-4 w-4' />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Cet utilisateur est supprimé</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </TableCell>
+    );
+  }
+
   return (
     <TableCell>
       <DropdownMenu>
@@ -42,20 +65,7 @@ export function UserActions({
             className='h-8 w-8 p-0'
             disabled={isDeleted}
           >
-            {isDeleted ? (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <MoreHorizontal className='h-4 w-4' />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Cet utilisateur est supprimé</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            ) : (
-              <MoreHorizontal className='h-4 w-4' />
-            )}
+            <MoreHorizontal className='h-4 w-4' />
           </Button>
         </DropdownMenuTrigger>
         {/*TODO REFACTOR HERE*/}
