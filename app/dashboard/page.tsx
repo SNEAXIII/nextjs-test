@@ -14,7 +14,9 @@ export default function UsersPage() {
 
   useEffect(() => {
     const loadUsers = async () => {
-      setIsLoading(true);
+      if (!users) {
+        setIsLoading(true);
+      }
       try {
         const data = await getUsers(currentPage, usersPerPage);
         setUsers(data.users);
@@ -27,7 +29,6 @@ export default function UsersPage() {
     };
     loadUsers();
   }, [currentPage, usersPerPage]);
-
   const handleNextPage = () => {
     setCurrentPage((page) => page + 1);
   };
