@@ -38,7 +38,7 @@ export function UserActions({
       <TableCell>
         <TooltipProvider>
           <Tooltip>
-            <TooltipTrigger>
+            <TooltipTrigger asChild>
               <Button
                 variant='ghost'
                 className='h-8 w-8 p-0'
