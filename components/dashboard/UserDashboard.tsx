@@ -9,7 +9,8 @@ export interface UserRowProps {
   onDisable: (userId: string) => void;
   onDelete: (userId: string) => void;
 }
-export function UserStatusBadge(props: { deleted: boolean, disabled: boolean}) {
+
+export function UserStatusBadge(props: { deleted: boolean; disabled: boolean }) {
   const getStatusStyle = () => {
     if (props.deleted) return 'bg-red-100 text-red-800';
     if (props.disabled) return 'bg-yellow-100 text-yellow-800';
@@ -30,6 +31,7 @@ export function UserStatusBadge(props: { deleted: boolean, disabled: boolean}) {
     </TableCell>
   );
 }
+
 export function RowUserLogin(props: { login: string }) {
   return <TableCell>{truncateString(props.login, 15)}</TableCell>;
 }

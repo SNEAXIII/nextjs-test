@@ -16,7 +16,7 @@ export interface FetchUsersResponse {
   current_page: number;
 }
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-export const fetchUsers = async (
+export const getUsers = async (
   page: number = 1,
   size: number = 10
 ): Promise<FetchUsersResponse> => {

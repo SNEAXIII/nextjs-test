@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { fetchUsers, fetchUsers2, User } from '@/app/services/users';
+import { getUsers, User } from '@/app/services/users';
 import Loading from '@/app/dashboard/loading';
 import RenderUserDashboard from '@/app/ui/dashboard/render-user-dashboard';
 
@@ -11,17 +11,13 @@ export default function UsersPage() {
   useEffect(() => {
     const loadUsers = async () => {
       try {
-        const data = await fetchUsers();
+        const data = await getUsers();
         setUsers(data.users);
       } catch (error) {
         console.error('Erreur lors du chargement des utilisateurs:', error);
       } finally {
         setLoading(false);
       }
-      const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-      await sleep(1000);
-      const data = await fetchUsers2();
-      setUsers(data.users);
     };
     loadUsers();
   }, []);
