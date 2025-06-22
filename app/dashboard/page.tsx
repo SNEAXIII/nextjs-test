@@ -3,18 +3,47 @@ import React, { useEffect, useState } from 'react';
 import { getUsers, User } from '@/app/services/users';
 import Loading from '@/app/dashboard/loading';
 import RenderUserDashboard from '@/app/ui/dashboard/render-user-dashboard';
-import PaginationControls from '@/app/ui/dashboard/pagination-controls';
-
+import PaginationControls from '@/app/ui/dashboard/pagination/pagination-controls';
+import { possibleRoles, possibleStatus } from '@/app/ui/dashboard/table-header';
+const BASE_CURRENT_PAGE = 1;
+const BASE_TOTAL_PAGE = 1;
+const BASE_USERS_PER_PAGE = 10;
+const BASE_SELECTED_STATUS = possibleStatus[0].value;
+const BASE_SELECTED_ROLE = possibleRoles[0].value;
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPage, setTotalPage] = useState(1);
-  const [usersPerPage, setUsersPerPage] = useState(10);
+  const [currentPage, setCurrentPage] = useState(BASE_CURRENT_PAGE);
+  const [totalPage, setTotalPage] = useState(BASE_TOTAL_PAGE);
+  const [usersPerPage, setUsersPerPage] = useState(BASE_USERS_PER_PAGE);
+  const [selectedStatus, setSelectedStatus] = useState(BASE_SELECTED_STATUS);
+  const [selectedRole, setSelectedRole] = useState(BASE_SELECTED_ROLE);
+
+  function resetPagination() {
+    setCurrentPage(BASE_CURRENT_PAGE);
+    setTotalPage(BASE_TOTAL_PAGE);
+    setUsersPerPage(BASE_USERS_PER_PAGE);
+    setSelectedStatus(BASE_SELECTED_STATUS);
+    setSelectedRole(BASE_SELECTED_ROLE);
+  }
+
+  function goToPage1() {
+    setCurrentPage(1);
+  }
 
   function handleRadioSetUsersPerPage(value: string) {
     setUsersPerPage(Number(value));
-    setCurrentPage(1);
+    goToPage1();
+  }
+
+  function handleRadioSetSelectedStatus(value: string) {
+    setSelectedStatus(value);
+    goToPage1();
+  }
+
+  function handleRadioSetSelectedRole(value: string) {
+    setSelectedRole(value);
+    goToPage1();
   }
 
   useEffect(() => {
@@ -23,7 +52,7 @@ export default function UsersPage() {
         setIsLoading(true);
       }
       try {
-        const data = await getUsers(currentPage, usersPerPage);
+        const data = await getUsers(currentPage, usersPerPage, selectedStatus, selectedRole);
         setUsers(data.users);
         setTotalPage(data.total_pages);
       } catch (error) {
@@ -33,7 +62,7 @@ export default function UsersPage() {
       }
     };
     loadUsers();
-  }, [currentPage, usersPerPage]);
+  }, [currentPage, usersPerPage, selectedStatus, selectedRole]);
   const handleNextPage = () => {
     setCurrentPage((page) => page + 1);
   };
@@ -85,12 +114,17 @@ export default function UsersPage() {
         onPreviousPage={handlePreviousPage}
         onNextPage={handleNextPage}
         onLastPage={handleLastPage}
+        onResetPagination={resetPagination}
       />
       {isLoading ? (
         <Loading usersPerPage={usersPerPage} />
       ) : (
         <RenderUserDashboard
           users={users}
+          role={selectedRole}
+          onRoleChange={handleRadioSetSelectedRole}
+          status={selectedStatus}
+          onStatusChange={handleRadioSetSelectedStatus}
           onDisable={handleDisable}
           onEnable={handleEnable}
           onDelete={handleDelete}

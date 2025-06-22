@@ -1,8 +1,8 @@
 import React from 'react';
 import { User } from '@/app/services/users';
 import { Table, TableBody } from '@/components/ui/table';
-import { UserRow } from '@/components/dashboard/UserRow';
-import TableHeaderUsers from '@/app/ui/dashboard/table-header';
+import { UserRow } from '@/app/ui/dashboard/user-row';
+import TableHeaderUsers, { AllSelectorProps } from '@/app/ui/dashboard/table-header';
 
 interface RenderUserDashboardProps {
   users: User[];
@@ -13,15 +13,24 @@ interface RenderUserDashboardProps {
 
 export default function RenderUserDashboard({
   users,
+  status,
+  onStatusChange,
+  role,
+  onRoleChange,
   onDisable,
   onEnable,
   onDelete,
-}: RenderUserDashboardProps) {
+}: RenderUserDashboardProps & AllSelectorProps) {
   return (
     <div className='container mx-auto py-6'>
       <Table>
-        <TableHeaderUsers />
-        <TableBody>{}
+        <TableHeaderUsers
+          role={role}
+          onRoleChange={onRoleChange}
+          status={status}
+          onStatusChange={onStatusChange}
+        />
+        <TableBody>
           {users.map((user) => (
             <UserRow
               key={user.id}

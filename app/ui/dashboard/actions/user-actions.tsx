@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { MoreHorizontal, Power, Trash } from 'lucide-react';
 import { useState } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { ConfirmationDialog } from '@/components/dashboard/dialogs/ConfirmationDialog';
+import { ConfirmationDialog } from '@/app/ui/dashboard/dialogs/confirmation-dialog';
 
 interface UserActionsProps {
   userId: string;

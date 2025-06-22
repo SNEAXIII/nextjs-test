@@ -1,11 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import NavLinks from '@/app/ui/dashboard/nav-links';
 import MainCesiZenLogo from '@/app/ui/CesiZenLogo';
 import { IoIosPower } from 'react-icons/io';
+import NavLinks from '@/app/ui/left-nav-bar/nav-links';
 
-export default function SideNav() {
+export default function SideNavBar() {
   return (
     <div className='flex h-full flex-col px-3 py-4 md:px-2'>
       {/* Logo Section */}

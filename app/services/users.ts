@@ -1,3 +1,5 @@
+import { possibleRoles, possibleStatus } from '@/app/ui/dashboard/table-header';
+
 export interface User {
   login: string;
   email: string;
@@ -5,8 +7,8 @@ export interface User {
   id: string;
   created_at: string;
   last_login_date: string | null;
-  disabled: boolean;
-  deleted: boolean;
+  disabled_at: boolean;
+  deleted_at: boolean;
 }
 
 export interface FetchUsersResponse {
@@ -18,9 +20,13 @@ export interface FetchUsersResponse {
 
 export const getUsers = async (
   page: number = 1,
-  size: number = 10
+  size: number = 10,
+  status: string | null = null,
+  role: string | null = null
 ): Promise<FetchUsersResponse> => {
-  const url = `http://127.0.0.1:8000/admin/users?page=${page}&size=${size}`;
+  const query_status = status&&status != possibleStatus[0].value ? `&status=${status}` : '';
+  const query_role = role &&role != possibleRoles[0].value ? `&role=${role}` : '';
+  const url = `http://127.0.0.1:8000/admin/users?page=${page}&size=${size}${query_status}${query_role}`;
   const headers = {
     accept: 'application/json',
     Authorization:

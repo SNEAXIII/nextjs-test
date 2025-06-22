@@ -1,6 +1,6 @@
 import '@/app/ui/global.css';
 import { inter } from '@/app/ui/fonts';
-import SideNav from './ui/dashboard/sidenav';
+import SideNavBar from '@/app/ui/left-nav-bar/sidenav';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -8,7 +8,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${inter.className} antialiased`}>
         <div className='flex h-screen flex-col md:flex-row md:overflow-hidden'>
           <div className='w-full flex-none md:w-64'>
-            <SideNav />
+            <SideNavBar />
           </div>
           <div className='grow p-6 md:overflow-y-auto md:p-12'>{children}</div>
         </div>

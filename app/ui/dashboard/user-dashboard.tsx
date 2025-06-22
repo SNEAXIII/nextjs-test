@@ -1,25 +1,17 @@
-import { User } from '@/app/services/users';
 import { TableCell } from '@/components/ui/table';
 import { formatDateInFrenchShort, truncateString } from '@/app/lib/utils';
 import React from 'react';
 
-export interface UserRowProps {
-  user: User;
-  onEdit: (userId: string) => void;
-  onDisable: (userId: string) => void;
-  onDelete: (userId: string) => void;
-}
-
-export function UserStatusBadge(props: { deleted: boolean; disabled: boolean }) {
+export function UserStatusBadge(props: { deleted_at: boolean; disabled_at: boolean }) {
   const getStatusStyle = () => {
-    if (props.deleted) return 'bg-red-100 text-red-800';
-    if (props.disabled) return 'bg-yellow-100 text-yellow-800';
+    if (props.deleted_at) return 'bg-red-100 text-red-800';
+    if (props.disabled_at) return 'bg-yellow-100 text-yellow-800';
     return 'bg-green-100 text-green-800';
   };
 
   const getStatusText = () => {
-    if (props.deleted) return 'Supprimé';
-    if (props.disabled) return 'Désactivé';
+    if (props.deleted_at) return 'Supprimé';
+    if (props.disabled_at) return 'Désactivé';
     return 'Activé';
   };
 

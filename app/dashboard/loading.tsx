@@ -1,6 +1,6 @@
 import React from 'react';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
-import TableHeaderUsers from '@/app/ui/dashboard/table-header';
+import TableHeaderUsers, { possibleStatus } from '@/app/ui/dashboard/table-header';
 import { MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -9,10 +9,12 @@ interface LoadingProps {
 }
 
 export default function Loading({ usersPerPage }: LoadingProps) {
+
   return (
     <div className='container mx-auto py-6'>
       <Table>
-        <TableHeaderUsers />
+        {/*TODO DISABLE THE WARNING*/}
+        <TableHeaderUsers/>
         <TableBody>
           {Array.from({ length: usersPerPage }, (_, index) => (
             <TableRow key={index}>

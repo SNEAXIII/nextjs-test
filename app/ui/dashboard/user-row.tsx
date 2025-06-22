@@ -7,8 +7,8 @@ import {
   RowUserLogin,
   RowUserRole,
   UserStatusBadge,
-} from '@/components/dashboard/UserDashboard';
-import { UserActions } from '@/components/dashboard/actions/UserActions';
+} from '@/app/ui/dashboard/user-dashboard';
+import { UserActions } from '@/app/ui/dashboard/actions/user-actions';
 
 interface UserRowProps {
   user: User;
@@ -26,13 +26,13 @@ export function UserRow({ user, onDisable, onEnable, onDelete }: UserRowProps) {
       <RowUserCreatedAt created_at={user.created_at} />
       <RowUserLastLoginDate lastLoginDate={user.last_login_date} />
       <UserStatusBadge
-        deleted={user.deleted}
-        disabled={user.disabled}
+        deleted_at={user.deleted_at}
+        disabled_at={user.disabled_at}
       />
       <UserActions
         userId={user.id}
-        isDisabled={user.disabled}
-        isDeleted={user.deleted}
+        isDisabled={user.disabled_at}
+        isDeleted={user.deleted_at}
         onDisable={onDisable}
         onEnable={onEnable}
         onDelete={onDelete}
