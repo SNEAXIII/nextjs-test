@@ -47,25 +47,81 @@ export const getUsers = async (
 export const loginForAccessToken = async (
   username: string,
   password: string
-): Promise<LoginResponse> => {
-  const url = `http://localhost:8000/auth/login`;
-  const headers = {
-    accept: 'application/json',
-    'Content-Type': 'application/x-www-form-urlencoded',
-  };
-  const body = new URLSearchParams({
-    username,
-    password,
-  });
+): Promise<{ access_token: string; token_type: string }> => {
+  const url = 'http://localhost:8000/auth/login';
+  
+  // Essayer d'abord avec x-www-form-urlencoded
+  try {
+    const formData = new URLSearchParams();
+    formData.append('username', username);
+    formData.append('password', password);
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'accept': 'application/json',
+      },
+      body: formData,
+      cache: 'no-store',
+    });
 
-  const response = await fetch(url, {
-    method: 'POST',
-    headers,
-    body,
-  });
+    const data = await response.json();
+    
+    if (!response.ok) {
+      console.error('Erreur de login (form-urlencoded):', {
+        status: response.status,
+        statusText: response.statusText,
+        data
+      });
+      throw new Error(data.detail || 'Identifiants invalides');
+    }
 
-  if (!response.ok) {
-    throw new Error(`HTTP error! Status: ${response.status} Error: ${response.statusText}`);
+    if (!data.access_token) {
+      throw new Error('Token d\'accès manquant dans la réponse');
+    }
+
+    return {
+      access_token: data.access_token,
+      token_type: data.token_type || 'bearer',
+    };
+  } catch (error) {
+    console.error('Erreur avec form-urlencoded, tentative avec JSON:', error);
+    
+    // Si la première méthode échoue, essayer avec JSON
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'accept': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+        cache: 'no-store',
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        console.error('Erreur de login (JSON):', {
+          status: response.status,
+          statusText: response.statusText,
+          data
+        });
+        throw new Error(data.detail || 'Identifiants invalides');
+      }
+
+      if (!data.access_token) {
+        throw new Error('Token d\'accès manquant dans la réponse');
+      }
+
+      return {
+        access_token: data.access_token,
+        token_type: data.token_type || 'bearer',
+      };
+    } catch (jsonError) {
+      console.error('Échec des deux méthodes d\'authentification:', jsonError);
+      throw new Error('Échec de l\'authentification. Vérifiez vos identifiants et réessayez.');
+    }
   }
-  return response.json();
 };
