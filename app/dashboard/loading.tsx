@@ -13,7 +13,8 @@ export default function Loading({ usersPerPage }: LoadingProps) {
   return (
     <div className='container mx-auto py-6'>
       <Table>
-        {/*TODO DISABLE THE WARNING*/}
+        {/*
+        // @ts-ignore: we don't need to pass interactive functions*/}
         <TableHeaderUsers/>
         <TableBody>
           {Array.from({ length: usersPerPage }, (_, index) => (

@@ -22,7 +22,6 @@ export default function UsersPage() {
   const [canReset, setCanReset] = useState(false);
 
   function resetPagination() {
-    setCanReset(false);
     setUsersPerPage(BASE_USERS_PER_PAGE);
     setSelectedStatus(BASE_SELECTED_STATUS);
     setSelectedRole(BASE_SELECTED_ROLE);
@@ -50,9 +49,7 @@ export default function UsersPage() {
 
   useEffect(() => {
     const loadUsers = async () => {
-      if (!canReset) {
-        setCanReset(true);
-      }
+      setCanReset(false);
       if (!users) {
         setIsLoading(true);
         setCanReset(false);
@@ -72,6 +69,7 @@ export default function UsersPage() {
         console.error('Erreur lors du chargement des utilisateurs:', error);
       } finally {
         setIsLoading(false);
+        setCanReset(true);
       }
     };
     loadUsers();

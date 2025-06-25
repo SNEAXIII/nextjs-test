@@ -11,6 +11,11 @@ export interface User {
   deleted_at: boolean;
 }
 
+export interface LoginResponse extends User {
+  access_token: string;
+  token_type: string;
+}
+
 export interface FetchUsersResponse {
   users: User[];
   total_users: number;
@@ -24,8 +29,8 @@ export const getUsers = async (
   status: string | null = null,
   role: string | null = null
 ): Promise<FetchUsersResponse> => {
-  const query_status = status&&status != possibleStatus[0].value ? `&status=${status}` : '';
-  const query_role = role &&role != possibleRoles[0].value ? `&role=${role}` : '';
+  const query_status = status && status !== possibleStatus[0].value ? `&status=${status}` : '';
+  const query_role = role && role !== possibleRoles[0].value ? `&role=${role}` : '';
   const url = `http://127.0.0.1:8000/admin/users?page=${page}&size=${size}${query_status}${query_role}`;
   const headers = {
     accept: 'application/json',
@@ -34,7 +39,33 @@ export const getUsers = async (
   };
   const response = await fetch(url, { headers });
   if (!response.ok) {
-    throw new Error(`HTTP error! Status: ${response.status}error: ${response.body}`);
+    throw new Error(`HTTP error! Status: ${response.status} Error: ${response.statusText}`);
+  }
+  return response.json();
+};
+
+export const loginForAccessToken = async (
+  username: string,
+  password: string
+): Promise<LoginResponse> => {
+  const url = `http://localhost:8000/auth/login`;
+  const headers = {
+    accept: 'application/json',
+    'Content-Type': 'application/x-www-form-urlencoded',
+  };
+  const body = new URLSearchParams({
+    username,
+    password,
+  });
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers,
+    body,
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! Status: ${response.status} Error: ${response.statusText}`);
   }
   return response.json();
 };
