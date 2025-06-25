@@ -2,9 +2,10 @@
 import React, { useEffect, useState } from 'react';
 import { getUsers, User } from '@/app/services/users';
 import Loading from '@/app/dashboard/loading';
-import RenderUserDashboard from '@/app/ui/dashboard/render-user-dashboard';
+import RenderUserDashboard from '@/app/ui/dashboard/table/render-user-dashboard';
 import PaginationControls from '@/app/ui/dashboard/pagination/pagination-controls';
-import { possibleRoles, possibleStatus } from '@/app/ui/dashboard/table-header';
+import { possibleRoles, possibleStatus } from '@/app/ui/dashboard/table/table-header';
+
 const BASE_CURRENT_PAGE = 1;
 const BASE_TOTAL_PAGE = 1;
 const BASE_USERS_PER_PAGE = 10;
@@ -18,13 +19,14 @@ export default function UsersPage() {
   const [usersPerPage, setUsersPerPage] = useState(BASE_USERS_PER_PAGE);
   const [selectedStatus, setSelectedStatus] = useState(BASE_SELECTED_STATUS);
   const [selectedRole, setSelectedRole] = useState(BASE_SELECTED_ROLE);
+  const [canReset, setCanReset] = useState(false);
 
   function resetPagination() {
-    setCurrentPage(BASE_CURRENT_PAGE);
-    setTotalPage(BASE_TOTAL_PAGE);
+    setCanReset(false);
     setUsersPerPage(BASE_USERS_PER_PAGE);
     setSelectedStatus(BASE_SELECTED_STATUS);
     setSelectedRole(BASE_SELECTED_ROLE);
+    setCurrentPage(BASE_CURRENT_PAGE);
   }
 
   function goToPage1() {
@@ -48,13 +50,24 @@ export default function UsersPage() {
 
   useEffect(() => {
     const loadUsers = async () => {
+      if (!canReset) {
+        setCanReset(true);
+      }
       if (!users) {
         setIsLoading(true);
+        setCanReset(false);
       }
       try {
-        const data = await getUsers(currentPage, usersPerPage, selectedStatus, selectedRole);
+        const data = await getUsers(
+          Math.max(currentPage, 1),
+          usersPerPage,
+          selectedStatus,
+          selectedRole
+        );
         setUsers(data.users);
+        setCurrentPage(Math.min(currentPage, data.total_pages));
         setTotalPage(data.total_pages);
+        console.log(currentPage, totalPage);
       } catch (error) {
         console.error('Erreur lors du chargement des utilisateurs:', error);
       } finally {
@@ -109,6 +122,7 @@ export default function UsersPage() {
         currentPage={currentPage}
         totalPage={totalPage}
         usersPerPage={usersPerPage}
+        canReset={canReset}
         onUserPerPageChange={handleRadioSetUsersPerPage}
         onFirstPage={handleFirstPage}
         onPreviousPage={handlePreviousPage}

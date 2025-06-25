@@ -26,7 +26,12 @@ interface RoleSelectorProps {
 
 export type AllSelectorProps = StatusSelectorProps & RoleSelectorProps;
 
-export default function TableHeaderUsers({ status, onStatusChange,role ,onRoleChange}: AllSelectorProps) {
+export default function TableHeaderUsers({
+  status,
+  onStatusChange,
+  role,
+  onRoleChange,
+}: AllSelectorProps) {
   return (
     <TableHeader>
       <TableRow>
@@ -35,11 +40,12 @@ export default function TableHeaderUsers({ status, onStatusChange,role ,onRoleCh
         <TableHead>
           <DropdownRadioMenu
             labelButton={'Rôle'}
-            labelDescription={"Sélectionnez un rôle"}
+            labelDescription={'Sélectionnez un rôle'}
             possibleValues={possibleRoles}
             selectedValue={role}
             setValue={onRoleChange}
-          /></TableHead>
+          />
+        </TableHead>
         <TableHead>Création</TableHead>
         <TableHead>Dernière connexion</TableHead>
         <TableHead>

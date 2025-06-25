@@ -9,6 +9,7 @@ interface PaginationControlsProps {
   currentPage: number;
   totalPage: number;
   usersPerPage: number;
+  canReset: boolean;
   onUserPerPageChange: (value: string) => void;
   onFirstPage: () => void;
   onPreviousPage: () => void;
@@ -21,6 +22,7 @@ export default function PaginationControls({
   currentPage,
   totalPage,
   usersPerPage,
+  canReset,
   onUserPerPageChange,
   onFirstPage,
   onPreviousPage,
@@ -29,8 +31,8 @@ export default function PaginationControls({
   onResetPagination,
 }: PaginationControlsProps) {
   return (
-    <div className='flex flex-col md:flex-row gap-1 sm:gap-3'>
-      <div className='flex justify-center md:justify-start items-center flex-wrap gap-1 sm:gap-3 w-full sm:w-auto'>
+    <div className='flex flex-col lg:flex-row gap-1 sm:gap-3'>
+      <div className='flex justify-center lg:justify-start items-center flex-wrap gap-1 sm:gap-3 w-full sm:w-auto'>
         <Button
           onClick={onFirstPage}
           disabled={currentPage <= 1}
@@ -46,7 +48,7 @@ export default function PaginationControls({
           <IoChevronBackOutline />
         </Button>
         <p className='flex-1 items-center justify-center text-center w-28 text-sm sm:text-base'>
-          Page {currentPage}/{totalPage}
+          Page {!totalPage ? 0 : currentPage}/{totalPage}
         </p>
         <Button
           onClick={onNextPage}
@@ -63,13 +65,14 @@ export default function PaginationControls({
           <LuChevronLast />
         </Button>
       </div>
-      <div className='flex justify-center md:justify-start items-center flex-wrap gap-1 sm:gap-3 w-full sm:w-auto'>
+      <div className='flex justify-center lg:justify-start items-center flex-wrap gap-1 sm:gap-3 w-full sm:w-auto'>
         <PageNumberSelector
           usersPerPage={usersPerPage}
           onValueChange={onUserPerPageChange}
         />
         <Button
           onClick={onResetPagination}
+          disabled={!canReset}
           variant='outline'
         >
           Réinitialisation <GrPowerReset />

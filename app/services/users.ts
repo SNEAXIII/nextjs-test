@@ -1,4 +1,4 @@
-import { possibleRoles, possibleStatus } from '@/app/ui/dashboard/table-header';
+import { possibleRoles, possibleStatus } from '@/app/ui/dashboard/table/table-header';
 
 export interface User {
   login: string;
@@ -34,7 +34,7 @@ export const getUsers = async (
   };
   const response = await fetch(url, { headers });
   if (!response.ok) {
-    throw new Error(`HTTP error! Status: ${response.status}`);
+    throw new Error(`HTTP error! Status: ${response.status}error: ${response.body}`);
   }
   return response.json();
 };

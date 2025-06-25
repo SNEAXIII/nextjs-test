@@ -7,7 +7,7 @@ import {
   RowUserLogin,
   RowUserRole,
   UserStatusBadge,
-} from '@/app/ui/dashboard/user-dashboard';
+} from '@/app/ui/dashboard/table/user-cells';
 import { UserActions } from '@/app/ui/dashboard/actions/user-actions';
 
 interface UserRowProps {
@@ -31,6 +31,7 @@ export function UserRow({ user, onDisable, onEnable, onDelete }: UserRowProps) {
       />
       <UserActions
         userId={user.id}
+        isAdmin={user.role === 'admin'}
         isDisabled={user.disabled_at}
         isDeleted={user.deleted_at}
         onDisable={onDisable}

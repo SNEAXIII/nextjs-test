@@ -1,8 +1,8 @@
 import React from 'react';
 import { User } from '@/app/services/users';
 import { Table, TableBody } from '@/components/ui/table';
-import { UserRow } from '@/app/ui/dashboard/user-row';
-import TableHeaderUsers, { AllSelectorProps } from '@/app/ui/dashboard/table-header';
+import { UserRow } from '@/app/ui/dashboard/table/user-row';
+import TableHeaderUsers, { AllSelectorProps } from '@/app/ui/dashboard/table/table-header';
 
 interface RenderUserDashboardProps {
   users: User[];
@@ -23,7 +23,7 @@ export default function RenderUserDashboard({
 }: RenderUserDashboardProps & AllSelectorProps) {
   return (
     <div className='container mx-auto py-6'>
-      <Table>
+      <Table className={'table-auto w-full'}>
         <TableHeaderUsers
           role={role}
           onRoleChange={onRoleChange}
@@ -42,6 +42,11 @@ export default function RenderUserDashboard({
           ))}
         </TableBody>
       </Table>
+      {users.length === 0 && (
+        <div className={'mt-5 flex justify-center items-center w-full h-full'}>
+          <p>Aucun utilisateurs trouvés</p>
+        </div>
+      )}
     </div>
   );
 }

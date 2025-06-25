@@ -15,6 +15,7 @@ import { ConfirmationDialog } from '@/app/ui/dashboard/dialogs/confirmation-dial
 
 interface UserActionsProps {
   userId: string;
+  isAdmin: boolean;
   isDisabled: boolean;
   isDeleted: boolean;
   onDisable: (userId: string) => void;
@@ -24,6 +25,7 @@ interface UserActionsProps {
 
 export function UserActions({
   userId,
+  isAdmin,
   isDisabled,
   isDeleted,
   onDisable,
@@ -32,23 +34,26 @@ export function UserActions({
 }: UserActionsProps) {
   const [isDisableDialogOpen, setIsDisableDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-
-  if (isDeleted) {
+  const isDisabledOrAdmin = isDeleted || isAdmin;
+  if (isDisabledOrAdmin) {
     return (
       <TableCell>
         <TooltipProvider>
           <Tooltip>
-            <TooltipTrigger asChild><div>
-              <Button
-                variant='ghost'
-                className='h-8 w-8 p-0'
-                disabled={isDeleted}
-              >
-                <MoreHorizontal className='h-4 w-4' />
-              </Button></div>
+            <TooltipTrigger asChild>
+              <div>
+                <Button
+                  variant='ghost'
+                  className='h-8 w-8 p-0'
+                  disabled={isDisabledOrAdmin}
+                >
+                  <MoreHorizontal className='h-4 w-4' />
+                </Button>
+              </div>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Cet utilisateur est supprimé</p>
+              {isAdmin && <p>Cet utilisateur est un administrateur</p>}
+              {isDeleted && <p>Cet utilisateur est supprimé</p>}
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
