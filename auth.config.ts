@@ -4,6 +4,14 @@ import { z } from 'zod';
 import { loginForAccessToken } from '@/app/services/users';
 import { parseJwt } from '@/app/lib/utils';
 
+// Déclarer le type process pour éviter les erreurs TypeScript
+declare const process: {
+  env: {
+    NODE_ENV: 'development' | 'production' | 'test';
+    AUTH_SECRET?: string;
+  };
+};
+
 // Étendre les types de Session pour inclure nos champs personnalisés
 declare module 'next-auth' {
   interface Session {
@@ -18,7 +26,7 @@ declare module 'next-auth' {
 
 // Définition du type User compatible avec NextAuth
 type User = {
-  id?: string;  // Rendre id optionnel pour correspondre au type de base
+  id?: string;
   name?: string | null;
   email?: string | null;
   image?: string | null;
@@ -27,21 +35,10 @@ type User = {
   accessToken?: string;
 };
 
-type Token = {
-  id: string;
-  email?: string | null;
-  name?: string | null;
-  login?: string;
-  role?: string;
-  accessToken?: string;
-  [key: string]: any; // Pour les autres propriétés du token
-};
-
 export const authConfig: NextAuthConfig = {
-  secret: process.env.AUTH_SECRET || 'your-secret-key',
   session: {
     strategy: 'jwt',
-    maxAge: 12 * 60 * 60, // 12 heures
+    maxAge: 60 * 60, // 1 hour
   },
   pages: {
     signIn: '/login',
@@ -52,25 +49,21 @@ export const authConfig: NextAuthConfig = {
       id: 'credentials',
       name: 'Credentials',
       credentials: {
-        login: { 
-          label: 'Login', 
-          type: 'text', 
-          placeholder: "Saisissez votre nom d'utilisateur" 
+        login: {
+          type: 'text',
         },
-        password: { 
-          label: 'Password', 
-          type: 'password', 
-          placeholder: 'Votre mot de passe' 
+        password: {
+          type: 'password',
         },
       },
       async authorize(credentials) {
         try {
           console.log('Credentials reçus:', credentials);
-          
+
           const parsedCredentials = z
-            .object({ 
-              username: z.string().min(1, 'Le nom d\'utilisateur est requis'),
-              password: z.string().min(1, 'Le mot de passe est requis') 
+            .object({
+              username: z.string().min(1, "Le nom d'utilisateur est requis"),
+              password: z.string().min(1, 'Le mot de passe est requis'),
             })
             .safeParse(credentials);
 
@@ -80,16 +73,29 @@ export const authConfig: NextAuthConfig = {
           }
 
           const { username: userLogin, password } = parsedCredentials.data;
-          const response = await loginForAccessToken(userLogin, password);
-          
+          const response = await loginForAccessToken(userLogin, password).catch((error) => {
+            // Si l'erreur contient un message, on le propage
+            if (error instanceof Error) {
+              throw error;
+            }
+            // Sinon, on lance une erreur générique
+            throw new Error('Échec de la connexion');
+          });
+
           if (!response?.access_token) {
-            console.error('Échec de l\'obtention du token d\'accès');
+            // Type assertion pour accéder à la propriété detail
+            const errorResponse = response as { detail?: string };
+            // Si la réponse contient un message d'erreur, on le retourne
+            if (errorResponse?.detail) {
+              throw new Error(errorResponse.detail);
+            }
+            console.error("Échec de l'obtention du token d'accès");
             return null;
           }
 
           const token = response.access_token;
           const tokenPayload = parseJwt(token);
-          
+
           // Vérifier si le token est expiré
           const currentTime = Math.floor(Date.now() / 1000);
           if (tokenPayload.exp < currentTime) {
@@ -97,10 +103,9 @@ export const authConfig: NextAuthConfig = {
             return null;
           }
 
-          // Créer l'objet utilisateur avec les informations du token
           const user: User = {
             id: tokenPayload.sub,
-            name: tokenPayload.sub, // Utilisé pour la compatibilité avec NextAuth
+            name: tokenPayload.sub, // Used by NextAuth for compatibilty
             email: tokenPayload.email || null,
             login: tokenPayload.sub,
             role: tokenPayload.role || 'user',
@@ -109,7 +114,7 @@ export const authConfig: NextAuthConfig = {
 
           return user;
         } catch (error) {
-          console.error('Échec de l\'authentification:', error);
+          console.error("Échec de l'authentification:", error);
           return null;
         }
       },
@@ -118,34 +123,17 @@ export const authConfig: NextAuthConfig = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        // Type assertion pour éviter les erreurs TypeScript
-        const jwtToken = token as Token;
-        const userData = user as User;
-        
-        jwtToken.id = userData.id;
-        jwtToken.email = userData.email ?? null;
-        jwtToken.name = userData.name ?? null;
-        jwtToken.login = userData.login || userData.email?.split('@')[0];
-        jwtToken.role = userData.role || 'user';
-        jwtToken.accessToken = userData.accessToken;
+        const typedUser = user as User;
+        if (typedUser.id) token.id = typedUser.id;
+        if (typedUser.accessToken) token.accessToken = typedUser.accessToken;
       }
       return token;
     },
     async session({ session, token }) {
-      const jwtToken = token as Token;
-      
       if (session.user) {
-        session.user.id = jwtToken.id;
-        if (jwtToken.email) session.user.email = jwtToken.email;
-        if (jwtToken.name) session.user.name = jwtToken.name;
-        if (jwtToken.login) (session as any).user.login = jwtToken.login;
-        if (jwtToken.role) (session as any).user.role = jwtToken.role;
+        session.user.id = token.id as string;
+        (session as any).accessToken = token.accessToken;
       }
-      
-      if (jwtToken.accessToken) {
-        (session as any).accessToken = jwtToken.accessToken;
-      }
-      
       return session;
     },
   },

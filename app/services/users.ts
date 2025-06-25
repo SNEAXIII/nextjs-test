@@ -50,78 +50,48 @@ export const loginForAccessToken = async (
 ): Promise<{ access_token: string; token_type: string }> => {
   const url = 'http://localhost:8000/auth/login';
   
-  // Essayer d'abord avec x-www-form-urlencoded
-  try {
-    const formData = new URLSearchParams();
-    formData.append('username', username);
-    formData.append('password', password);
-    
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'accept': 'application/json',
-      },
-      body: formData,
-      cache: 'no-store',
-    });
+  const formData = new URLSearchParams();
+  formData.append('username', username);
+  formData.append('password', password);
+  
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'accept': 'application/json',
+    },
+    body: formData,
+    cache: 'no-store',
+  });
 
-    const data = await response.json();
+  // Essayer de parser la réponse en JSON
+  let data;
+  try {
+    data = await response.json();
     
     if (!response.ok) {
-      console.error('Erreur de login (form-urlencoded):', {
-        status: response.status,
-        statusText: response.statusText,
-        data
-      });
-      throw new Error(data.detail || 'Identifiants invalides');
+      // Si l'API renvoie un message d'erreur, on l'utilise
+      throw new Error(data?.message || data?.detail || 'Identifiants invalides');
     }
-
+    
+    // Vérifier la présence du token d'accès
     if (!data.access_token) {
       throw new Error('Token d\'accès manquant dans la réponse');
     }
 
-    return {
-      access_token: data.access_token,
-      token_type: data.token_type || 'bearer',
-    };
-  } catch (error) {
-    console.error('Erreur avec form-urlencoded, tentative avec JSON:', error);
-    
-    // Si la première méthode échoue, essayer avec JSON
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'accept': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-        cache: 'no-store',
-      });
-
-      const data = await response.json();
-      
-      if (!response.ok) {
-        console.error('Erreur de login (JSON):', {
-          status: response.status,
-          statusText: response.statusText,
-          data
-        });
-        throw new Error(data.detail || 'Identifiants invalides');
-      }
-
-      if (!data.access_token) {
-        throw new Error('Token d\'accès manquant dans la réponse');
-      }
-
-      return {
-        access_token: data.access_token,
-        token_type: data.token_type || 'bearer',
-      };
-    } catch (jsonError) {
-      console.error('Échec des deux méthodes d\'authentification:', jsonError);
-      throw new Error('Échec de l\'authentification. Vérifiez vos identifiants et réessayez.');
+    // Vérifier le type de token
+    const tokenType = data.token_type?.toLowerCase();
+    if (tokenType !== 'bearer') {
+      throw new Error(`Type de token non supporté: ${data.token_type}`);
     }
+    
+    return data;
+  } catch (error) {
+    // En cas d'erreur de parsing JSON ou autre, on renvoie un message générique
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error('Erreur lors de la connexion');
   }
+
 };
