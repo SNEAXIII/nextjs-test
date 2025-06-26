@@ -58,49 +58,64 @@ export const authConfig: NextAuthConfig = {
       },
       async authorize(credentials) {
         try {
-          console.log('Credentials reçus:', credentials);
-
-          const parsedCredentials = z
-            .object({
-              username: z.string().min(1, "Le nom d'utilisateur est requis"),
-              password: z.string().min(1, 'Le mot de passe est requis'),
-            })
-            .safeParse(credentials);
-
-          if (!parsedCredentials.success) {
-            console.error('Format des identifiants invalide:', parsedCredentials.error);
-            return null;
+          console.log('Tentative de connexion avec les identifiants reçus');
+          
+          // Validation des champs obligatoires
+          if (!credentials?.login || !credentials?.password) {
+            console.error('Identifiants manquants');
+            throw new Error('Nom d\'utilisateur et mot de passe requis');
           }
 
-          const { username: userLogin, password } = parsedCredentials.data;
-          const response = await loginForAccessToken(userLogin, password).catch((error) => {
-            // Si l'erreur contient un message, on le propage
-            if (error instanceof Error) {
-              throw error;
-            }
-            // Sinon, on lance une erreur générique
-            throw new Error('Échec de la connexion');
+          // Validation du format des identifiants avec Zod
+          const validation = z.object({
+            username: z.string().min(1, "Le nom d'utilisateur est requis"),
+            password: z.string().min(1, 'Le mot de passe est requis'),
+          }).safeParse({
+            username: credentials.login,
+            password: credentials.password,
           });
 
-          if (!response?.access_token) {
-            // Type assertion pour accéder à la propriété detail
-            const errorResponse = response as { detail?: string };
-            // Si la réponse contient un message d'erreur, on le retourne
-            if (errorResponse?.detail) {
-              throw new Error(errorResponse.detail);
-            }
-            console.error("Échec de l'obtention du token d'accès");
-            return null;
+          if (!validation.success) {
+            const errorMessage = validation.error.errors.map(err => err.message).join('. ');
+            console.error('Validation des identifiants échouée:', errorMessage);
+            throw new Error(errorMessage);
           }
 
+          const { username: userLogin, password } = validation.data;
+          
+          console.log('Tentative d\'authentification pour:', userLogin);
+          
+          // Appel à l'API d'authentification
+          const response = await loginForAccessToken(userLogin, password)
+            .catch((error) => {
+              console.error('Erreur lors de l\'appel à loginForAccessToken:', error);
+              // Propager l'erreur avec un message convivial
+              if (error instanceof Error) {
+                throw new Error(`Échec de l'authentification: ${error.message}`);
+              }
+              throw new Error('Une erreur inconnue est survenue lors de la connexion');
+            });
+
+          // Vérification de la réponse de l'API
+          if (!response?.access_token) {
+            console.error('Réponse invalide du serveur:', response);
+            throw new Error('Réponse invalide du serveur d\'authentification');
+          }
+
+          // Décodage et validation du token JWT
           const token = response.access_token;
           const tokenPayload = parseJwt(token);
+          
+          if (!tokenPayload) {
+            console.error('Impossible de décoder le token JWT');
+            throw new Error('Erreur de traitement du jeton d\'authentification');
+          }
 
-          // Vérifier si le token est expiré
+          // Vérification de l'expiration du token
           const currentTime = Math.floor(Date.now() / 1000);
-          if (tokenPayload.exp < currentTime) {
+          if (tokenPayload.exp && tokenPayload.exp < currentTime) {
             console.error('Token expiré');
-            return null;
+            throw new Error('La session a expiré. Veuillez vous reconnecter.');
           }
 
           const user: User = {

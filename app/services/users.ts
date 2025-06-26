@@ -11,9 +11,11 @@ export interface User {
   deleted_at: boolean;
 }
 
-export interface LoginResponse extends User {
+interface LoginResponseData {
   access_token: string;
   token_type: string;
+  detail?: string;
+  message?: string;
 }
 
 export interface FetchUsersResponse {
@@ -44,6 +46,8 @@ export const getUsers = async (
   return response.json();
 };
 
+
+
 export const loginForAccessToken = async (
   username: string,
   password: string
@@ -54,44 +58,58 @@ export const loginForAccessToken = async (
   formData.append('username', username);
   formData.append('password', password);
   
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'accept': 'application/json',
-    },
-    body: formData,
-    cache: 'no-store',
-  });
-
-  // Essayer de parser la réponse en JSON
-  let data;
   try {
-    data = await response.json();
-    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'accept': 'application/json',
+      },
+      body: formData,
+      cache: 'no-store',
+    });
+
+    const data: LoginResponseData = await response.json().catch(() => ({}));
+
     if (!response.ok) {
-      // Si l'API renvoie un message d'erreur, on l'utilise
-      throw new Error(data?.message || data?.detail || 'Identifiants invalides');
+      // Gestion des erreurs HTTP (401, 400, etc.)
+      const errorMessage = data?.detail || data?.message || 'Identifiants invalides';
+      console.error('Erreur de connexion:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorMessage
+      });
+      throw new Error(errorMessage);
     }
     
-    // Vérifier la présence du token d'accès
-    if (!data.access_token) {
-      throw new Error('Token d\'accès manquant dans la réponse');
+    // Vérification du token
+    if (!data?.access_token) {
+      console.error('Token manquant dans la réponse:', data);
+      throw new Error('Réserve invalide du serveur: token manquant');
     }
 
-    // Vérifier le type de token
+    // Vérification du type de token
     const tokenType = data.token_type?.toLowerCase();
     if (tokenType !== 'bearer') {
-      throw new Error(`Type de token non supporté: ${data.token_type}`);
+      console.error('Type de token invalide:', tokenType);
+      throw new Error('Type de token non supporté');
     }
     
-    return data;
+    return {
+      access_token: data.access_token,
+      token_type: data.token_type
+    };
   } catch (error) {
-    // En cas d'erreur de parsing JSON ou autre, on renvoie un message générique
+    // Journalisation de l'erreur complète pour le débogage
+    console.error('Erreur lors de la tentative de connexion:', error);
+
+    // Renvoyer une erreur plus conviviale pour l'utilisateur
     if (error instanceof Error) {
+      // Si c'est déjà une erreur avec un message, on la propage
       throw error;
     }
-    throw new Error('Erreur lors de la connexion');
-  }
 
+    // Pour les erreurs inattendues
+    throw new Error('Une erreur est survenue lors de la connexion. Veuillez réessayer plus tard.');
+  }
 };

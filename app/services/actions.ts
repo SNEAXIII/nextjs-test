@@ -4,7 +4,12 @@ import { AuthError } from 'next-auth';
 
 
 
-export async function authenticate(prevState: string | undefined, formData: FormData) {
+type AuthState = string | { success?: boolean; redirectTo?: string; error?: string } | undefined;
+
+export async function authenticate(
+  prevState: AuthState,
+  formData: FormData
+): Promise<AuthState> {
   try {
     const result = await signIn('credentials', {
       ...Object.fromEntries(formData),
@@ -16,10 +21,9 @@ export async function authenticate(prevState: string | undefined, formData: Form
       return result.error;
     }
 
-    // Rediriger vers la page de tableau de bord après connexion réussie
+    // Retourner l'URL de redirection pour que le client effectue la redirection
     const callbackUrl = formData.get('redirectTo')?.toString() || '/dashboard';
-    window.location.href = callbackUrl;
-    return undefined;
+    return { success: true, redirectTo: callbackUrl };
   } catch (error) {
     console.error("Erreur d'authentification:", error);
     if (error instanceof AuthError) {

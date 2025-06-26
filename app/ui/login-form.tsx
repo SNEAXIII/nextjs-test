@@ -1,5 +1,7 @@
 'use client';
 
+type AuthState = string | { success?: boolean; redirectTo?: string; error?: string } | undefined;
+
 import { lusitana } from '@/app/ui/fonts';
 import {
   AtSymbolIcon,
@@ -7,7 +9,7 @@ import {
   ExclamationCircleIcon,
 } from '@heroicons/react/24/outline';
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
-import { useActionState } from 'react';
+import { useActionState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { authenticate } from '@/app/services/actions';
 import { Button } from '@/components/ui/button';
@@ -15,10 +17,22 @@ import { Button } from '@/components/ui/button';
 export default function LoginForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
-  const [errorMessage, formAction, isPending] = useActionState(
+  const [state, formAction, isPending] = useActionState<AuthState, FormData>(
     authenticate,
-    undefined,
+    undefined
   );
+
+  // Gérer la redirection après une connexion réussie
+  useEffect(() => {
+    if (state && typeof state === 'object' && state.success && state.redirectTo) {
+      window.location.href = state.redirectTo;
+    }
+  }, [state]);
+
+  // Gérer les messages d'erreur
+  const errorMessage = typeof state === 'string' 
+    ? state 
+    : state?.error;
 
   return (
     <form action={formAction} className="space-y-3">
